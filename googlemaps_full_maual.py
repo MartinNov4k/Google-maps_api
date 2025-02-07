@@ -40,75 +40,112 @@ def make_request(origin,destination,API_KEY, departure_time):
 
 
 
-def get_duration(origin, destination, interval, opakovani ):
+def get_duration(data_input, interval, opakovani, storage_file ):
     
-    completed = 0
-    API_KEY = "AIzaSyCdCLD3WGKfMoHqYnfb5gkUIry9MCh384g"
-    
-    
-    
-    
-    tomorrow = datetime.now() + timedelta(days=1)
-    departure_time_free_traffic = datetime(tomorrow.year, tomorrow.month, tomorrow.day, 3, 0).timestamp()
-    departure_time_free_traffic = str(int(departure_time_free_traffic))  
-    
-    
-    
-   
-    data_json = make_request(origin, destination, API_KEY,departure_time_free_traffic)
-    if data_json["status"] == "OK":
-        route = data_json["routes"][0]["legs"][0]  
-        duration_free = route["duration"]["value"]
-        
-            
-    
+    header = True
     
     for i in range(opakovani):
         if i > 0:
             time.sleep(interval)
-        
-        now_utc = datetime.now(timezone.utc) 
-        
-        act_date_time = now_utc + timedelta(hours=1)
-        
-        act_date = act_date_time.strftime("%d.%m.%Y") 
-        act_time = act_date_time.strftime("%H:%M")
+            
+        for one_dict in data_input:
+            origin = one_dict.get("orig")
+            destination = one_dict.get("dest")
         
         
         
-      
         
+            completed = 0
+            
+            API_KEY = "AIzaSyCdCLD3WGKfMoHqYnfb5gkUIry9MCh384g"
+            
+            
+            
+            
+            tomorrow = datetime.now() + timedelta(days=1)
+            departure_time_free_traffic = datetime(tomorrow.year, tomorrow.month, tomorrow.day, 3, 0).timestamp()
+            departure_time_free_traffic = str(int(departure_time_free_traffic))  
+            
+            
+            
         
-        data_json = make_request(origin, destination, API_KEY,"now")
-       
+            data_json = make_request(origin, destination, API_KEY,departure_time_free_traffic)
+            if data_json["status"] == "OK":
+                route = data_json["routes"][0]["legs"][0]  
+                duration_free = route["duration"]["value"]
+            
+                    
+            
+            
+            
+            now_utc = datetime.now(timezone.utc) 
+            
+            act_date_time = now_utc + timedelta(hours=1)
+            
+            act_date = act_date_time.strftime("%d.%m.%Y") 
+            act_time = act_date_time.strftime("%H:%M")
+            
+            
+            
+        
+            
+            
+            data_json = make_request(origin, destination, API_KEY,"now")
+            
 
-        if data_json["status"] == "OK":
-            route = data_json["routes"][0]["legs"][0]  # První trasa, první úsek
-            distance = route["distance"]["value"]
-            duration_traffic = route["duration_in_traffic"]["value"]
-            duration_traffic_text =route["duration_in_traffic"]["text"]
-            delay = route["duration_in_traffic"]["value"] - duration_free
+            if data_json["status"] == "OK":
+                route = data_json["routes"][0]["legs"][0]  # První trasa, první úsek
+                distance = route["distance"]["value"]
+                duration_traffic = route["duration_in_traffic"]["value"]
+                duration_traffic_text =route["duration_in_traffic"]["text"]
+                delay = route["duration_in_traffic"]["value"] - duration_free
+                start_addres = route["start_address"]
+                end_addres = route["end_address"]
+                print(f"Vzdálenost: {distance}")
+                print(duration_traffic)
+                
+                print(delay)
+                
             
-            print(f"Vzdálenost: {distance}")
-            print(duration_traffic)
-            
-            print(delay)
-            
-        storage_file_name = origin + "-" + destination + ".csv"
-        with open (storage_file_name,"a") as file:
-            file.write(act_date)
-            file.write(";")
-            file.write(act_time)
-            file.write(";")
-            file.write(str(duration_traffic))
-            file.write(";")
-            file.write(duration_traffic_text)
-            file.write(";")
-            file.write(str(distance))
-            file.write(";")
-            file.write(str(delay))
-            file.write("\n")
-            
-    completed+=1
-    print(completed,"/", opakovani)
-get_duration("Děčín", "Praha",10,1)
+            with open (storage_file,"a") as file:
+                
+                if header:
+                    file.write("Date;Time;Start Address;Origin;Destination;End Address;Duration in Traffic (s);Duration in Traffic;Distance (m);Delay\n")
+                    header = False
+                file.write(act_date)
+                file.write(";")
+                file.write(act_time)
+                file.write(";")
+                file.write(start_addres)
+                file.write(";")
+                file.write(origin)
+                file.write(";")
+                file.write(destination)
+                file.write(";")
+                file.write(end_addres)
+                file.write(";")
+                file.write(str(duration_traffic))
+                file.write(";")
+                file.write(duration_traffic_text)
+                file.write(";")
+                file.write(str(distance))
+                file.write(";")
+                file.write(str(delay))
+                file.write("\n")
+                
+        completed+=1
+        print(completed,"/", opakovani)
+        
+#procesing
+  
+storage_file_name = "traffic_data_" + datetime.now().strftime("%Y-%m-%d_%H-%M") + ".csv"
+
+
+data_input = [
+    {"orig": "Děčín", "dest": "Praha"},
+    {"orig": "Brno", "dest": "Ostrava"}
+]
+
+
+
+get_duration(data_input, 10, 1, storage_file_name)
