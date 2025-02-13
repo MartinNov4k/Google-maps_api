@@ -43,6 +43,7 @@ def make_request(origin,destination,API_KEY, departure_time):
 def get_duration(data_input, interval, opakovani, storage_file ):
     
     header = True
+    completed = 0
     
     for i in range(opakovani):
         if i > 0:
@@ -55,7 +56,7 @@ def get_duration(data_input, interval, opakovani, storage_file ):
         
         
         
-            completed = 0
+            
             
             API_KEY = "AIzaSyCdCLD3WGKfMoHqYnfb5gkUIry9MCh384g"
             
@@ -107,7 +108,7 @@ def get_duration(data_input, interval, opakovani, storage_file ):
                 print(delay)
                 
             
-            with open (storage_file,"a") as file:
+            with open (storage_file,"a", encoding="utf-8") as file:
                 
                 if header:
                     file.write("Date;Time;Start Address;Origin;Destination;End Address;Duration in Traffic (s);Duration in Traffic;Distance (m);Delay\n")
