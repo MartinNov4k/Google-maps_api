@@ -45,8 +45,8 @@ def get_duration(data_input, interval, opakovani, storage_file ):
     header = True
     completed = 0
     
-    for i in range(opakovani):
-        if i > 0:
+    while completed != opakovani:
+        if completed > 0:
             time.sleep(interval)
             
         for one_dict in data_input:
@@ -136,7 +136,8 @@ def get_duration(data_input, interval, opakovani, storage_file ):
                 
         completed+=1
         print(completed,"/", opakovani)
-        
+    else:
+        print(f"úspěšně dokončeno {completed}/ {opakovani}")
 #procesing
   
 storage_file_name = "traffic_data_" + datetime.now().strftime("%Y-%m-%d_%H-%M") + ".csv"
@@ -149,4 +150,4 @@ data_input = [
 
 
 
-get_duration(data_input, 10, 1, storage_file_name)
+get_duration(data_input, 10, 2, storage_file_name)
